@@ -184,7 +184,7 @@ The following producer operations are available
 |===
 
 ### Containers
-[width="100%",cols="10%,20%,30%,30%,10%",options="header"]
+[width="100%",cols="1,2,5,3,3",options="header"]
 |===
 | Operation | Options | Description  | Body Content | Returns
 | container/attach | **containerId**, followStream, logs, stdErr, stdOut, timestamps  | Attach to a container | | InputStream
@@ -207,7 +207,7 @@ The following producer operations are available
 |===
 
 ### Exec
-[width="100%",cols="10%,20%,30%,30%,10%",options="header"]
+[width="100%",cols="1,2,5,3,3",options="header"]
 |===
 | Operation | Options | Description  | Body Content | Returns
 | exec/create | **containerId**, attachStdErr, attachStdIn, attachStdOut, cmd, tty | Setup an *exec* instance on a running container | | ExecCreateCmdResponse
