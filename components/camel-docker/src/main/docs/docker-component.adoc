@@ -184,34 +184,34 @@ The following producer operations are available
 |===
 
 ### Containers
-[width="100%",options="header"]
+[width="100%",cols="2,5,^1,2",options="header"]
 |===
-| Operation | Options | Description  | Body Content | Returns
-| container/attach | **containerId**, followStream, logs, stdErr, stdOut, timestamps  | Attach to a container | | InputStream
-| container/commit | **containerId**, author, attachStdErr, attachStdIn, attachStdOut, cmd, disableNetwork, env, exposedPorts, hostname, memory, memorySwap, message, openStdIn, pause, portSpecs, repository, stdInOnce, tag, tty, user, volumes, workingDir | Create a new image from a container's changes | | String
-| container/copyfile | **containerId**, **resource**, hostPath | Copy files or folders from a container | | InputStream
-| container/create | **image**, attachStdErr, attachStdIn, attachStdOut, capAdd, capDrop, cmd, cpuShares, disableNetwork, dns, domanName, entrypoint, env, exposedPorts, hostConfig, hostname, memoryLimit, memorySwap, name, portSpecs, stdInOnce, stdInOpen, tty, user, volumes, volumesFrom, workingDir | Create a container |  |CreateContainerResponse
-| container/diff | **containerId**, containerIdDiff | Differences on the container filesystem | | List&lt;ChangeLog&gt;
-| container/inspect | **containerId** | Inspect a container  | | InspectContainerResponse
-| container/kill | **containerId**, signal | Kill a container | |
-| container/list | before, limit, showSize, showAll, since | List containers | | List&lt;Container&gt;
-| container/log | **containerId**, followStream, stdErr, stdOut, tail, tailAll, timestamps | Get container logs | | InputStream
-| container/pause | **containerId** | Pause a container | |
-| container/remove | **containerId**, force, removeVolumes | Remove a container | |
-| container/restart | **containerId**, timeout | Restart a container | |
-| container/start | **containerId** | Start a container | |
-| container/stop | **containerId**, timeout | Stop a container | |
-| container/top | **containerId**, psArgs | List processes running in a container | |TopContainerResponse
-| container/unpause | **containerId** | Unpause a container | |
-| container/wait | **containerId** | Blocks until a container is stopped | |
+| Operation | Options | Description  | Returns
+| container/attach | **containerId**, followStream, logs, stdErr, stdOut, timestamps  | Attach to a container | InputStream
+| container/commit | **containerId**, author, attachStdErr, attachStdIn, attachStdOut, cmd, disableNetwork, env, exposedPorts, hostname, memory, memorySwap, message, openStdIn, pause, portSpecs, repository, stdInOnce, tag, tty, user, volumes, workingDir | Create a new image from a container's changes | String
+| container/copyfile | **containerId**, **resource**, hostPath | Copy files or folders from a container | InputStream
+| container/create | **image**, attachStdErr, attachStdIn, attachStdOut, capAdd, capDrop, cmd, cpuShares, disableNetwork, dns, domanName, entrypoint, env, exposedPorts, hostConfig, hostname, memoryLimit, memorySwap, name, portSpecs, stdInOnce, stdInOpen, tty, user, volumes, volumesFrom, workingDir | Create a container  |CreateContainerResponse
+| container/diff | **containerId**, containerIdDiff | Differences on the container filesystem | List&lt;ChangeLog&gt;
+| container/inspect | **containerId** | Inspect a container  | InspectContainerResponse
+| container/kill | **containerId**, signal | Kill a container |
+| container/list | before, limit, showSize, showAll, since | List containers | List&lt;Container&gt;
+| container/log | **containerId**, followStream, stdErr, stdOut, tail, tailAll, timestamps | Get container logs | InputStream
+| container/pause | **containerId** | Pause a container |
+| container/remove | **containerId**, force, removeVolumes | Remove a container |
+| container/restart | **containerId**, timeout | Restart a container |
+| container/start | **containerId** | Start a container |
+| container/stop | **containerId**, timeout | Stop a container |
+| container/top | **containerId**, psArgs | List processes running in a container | TopContainerResponse
+| container/unpause | **containerId** | Unpause a container |
+| container/wait | **containerId** | Blocks until a container is stopped |
 |===
 
 ### Exec
-[width="100%",cols="1,2,5,3,3",options="header"]
+[width="100%",cols="2,5,^1,2",options="header"]
 |===
-| Operation | Options | Description  | Body Content | Returns
-| exec/create | **containerId**, attachStdErr, attachStdIn, attachStdOut, cmd, tty | Setup an *exec* instance on a running container | | ExecCreateCmdResponse
-| exec/start | **containerId**, detach, execId, tty | Starts a previously created *exec* instance | |InputStream
+| Operation | Options | Description | Returns
+| exec/create | **containerId**, attachStdErr, attachStdIn, attachStdOut, cmd, tty | Setup an *exec* instance on a running container | ExecCreateCmdResponse
+| exec/start | **containerId**, detach, execId, tty | Starts a previously created *exec* instance | InputStream
 |===
 
 
