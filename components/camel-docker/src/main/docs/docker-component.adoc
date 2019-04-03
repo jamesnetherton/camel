@@ -149,8 +149,8 @@ below
 [width="100%",cols="2,5,^1,2",options="header"]
 |===
 | Operation | Options | Description  | Produces
-|events| initialRange | Amount of time in the past to begin receiving events (Long) | Event
-|statistics| **containerId** | Statistics based on resource usage | Statistics
+| events | initialRange | Amount of time in the past to begin receiving events (Long) | Event
+| statistics| **containerId** | Statistics based on resource usage | Statistics
 |===
 
 ## Producer Operations
@@ -160,8 +160,8 @@ The following producer operations are available
 ### General
 [width="100%",cols="2,5,^1,2",options="header"]
 |===
-| Operation | Options | Description  | Returns
-| auth | Values obtained from the component general options| Validate auth configuration AuthResponse
+| Operation | Options | Description | Returns
+| auth | Values obtained from the component general options | Validate auth configuration | AuthResponse
 | info | | System wide information | Info
 | ping | | Ping the Docker server |
 | version | | Show the docker version information | Version
@@ -169,15 +169,14 @@ The following producer operations are available
 
 
 ### Images
-
-[width="100%",cols="2,5,^1,2",options="header"]
+[width="100%",cols="10%,20%,30%,30%,10%",options="header"]
 |===
-| Operation | Options | Description | Body Content | Returns
-| image/build | noCache, quiet, remove, tag | Build an image from Dockerfile via stdin **InputStream** or **File** | InputStream
+| Operation | Options | Description  | Body Content | returns
+| image/build | noCache, quiet, remove, tag | Build an image from Dockerfile via stdin | **InputStream** or **File** | InputStream
 | image/create | **repository** | Create an image | **InputStream** |CreateImageResponse
 | image/inspect | **imageId** | Inspect an image | | InspectImageResponse
 | image/list | filter, showAll | List images | | List&lt;Image&gt;
-| image/pull |  **repository**, registry, tag | Pull an image from the registry | InputStream
+| image/pull |  **repository**, registry, tag | Pull an image from the registry | | InputStream
 | image/push | **name**, tag | Push an image on the registry | | InputStream
 | image/remove | **imageId**, force, noPrune | Remove an image | |
 | image/search | **term** | Search for images | | List&lt;SearchItem&gt;
@@ -185,8 +184,7 @@ The following producer operations are available
 |===
 
 ### Containers
-
-[width="100%",cols="2,5,^1,2",options="header"]
+[width="100%",cols="10%,20%,30%,30%,10%",options="header"]
 |===
 | Operation | Options | Description  | Body Content | Returns
 | container/attach | **containerId**, followStream, logs, stdErr, stdOut, timestamps  | Attach to a container | | InputStream
@@ -200,17 +198,16 @@ The following producer operations are available
 | container/log | **containerId**, followStream, stdErr, stdOut, tail, tailAll, timestamps | Get container logs | | InputStream
 | container/pause | **containerId** | Pause a container | |
 | container/remove | **containerId**, force, removeVolumes | Remove a container | |
-| container/restart | **containerId**, timeout | Restart a container |
+| container/restart | **containerId**, timeout | Restart a container | |
 | container/start | **containerId** | Start a container | |
-| container/stop | **containerId**, timeout | Stop a container |
+| container/stop | **containerId**, timeout | Stop a container | |
 | container/top | **containerId**, psArgs | List processes running in a container | |TopContainerResponse
 | container/unpause | **containerId** | Unpause a container | |
 | container/wait | **containerId** | Blocks until a container is stopped | |
 |===
 
 ### Exec
-
-[width="100%",cols="2,5,^1,2",options="header"]
+[width="100%",cols="10%,20%,30%,30%,10%",options="header"]
 |===
 | Operation | Options | Description  | Body Content | Returns
 | exec/create | **containerId**, attachStdErr, attachStdIn, attachStdOut, cmd, tty | Setup an *exec* instance on a running container | | ExecCreateCmdResponse
