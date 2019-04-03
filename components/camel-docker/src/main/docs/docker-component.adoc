@@ -146,7 +146,7 @@ below
 
 
 ## Consumer Operations
-[width="100%",cols="2,5,^1",options="header"]
+[width="100%",cols="2,3,5,4",options="header"]
 |===
 | Operation | Options | Description  | Produces
 | events | initialRange | Amount of time in the past to begin receiving events (Long) | Event
@@ -158,7 +158,7 @@ below
 The following producer operations are available
 
 ### General
-[width="100%",cols="2,5,^1",options="header"]
+[width="100%",cols="2,3,5,4",options="header"]
 |===
 | Operation | Options | Description | Returns
 | auth | Values obtained from the component general options | Validate auth configuration | AuthResponse
@@ -169,7 +169,7 @@ The following producer operations are available
 
 
 ### Images
-[width="100%",cols="1,2,5,3,3",options="header"]
+[width="100%",cols="2,3,5,3,4",options="header"]
 |===
 | Operation | Options | Description  | Body Content | returns
 | image/build | noCache, quiet, remove, tag | Build an image from Dockerfile via stdin | **InputStream** or **File** | InputStream
@@ -184,7 +184,7 @@ The following producer operations are available
 |===
 
 ### Containers
-[width="100%",cols="2,5,^1",options="header"]
+[width="100%",cols="2,3,5,4",options="header"]
 |===
 | Operation | Options | Description  | Returns
 | container/attach | **containerId**, followStream, logs, stdErr, stdOut, timestamps  | Attach to a container | InputStream
@@ -207,7 +207,7 @@ The following producer operations are available
 |===
 
 ### Exec
-[width="100%",cols="2,5,^1",options="header"]
+[width="100%",cols="2,3,5,4",options="header"]
 |===
 | Operation | Options | Description | Returns
 | exec/create | **containerId**, attachStdErr, attachStdIn, attachStdOut, cmd, tty | Setup an *exec* instance on a running container | ExecCreateCmdResponse
