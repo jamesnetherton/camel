@@ -169,7 +169,7 @@ The following producer operations are available
 
 
 ### Images
-[width="100%",cols="10%,20%,30%,30%,10%",options="header"]
+[width="100%",cols="5",options="header"]
 |===
 | Operation | Options | Description  | Body Content | returns
 | image/build | noCache, quiet, remove, tag | Build an image from Dockerfile via stdin | **InputStream** or **File** | InputStream
