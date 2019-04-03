@@ -145,6 +145,79 @@ below
 |=======================================================================
 
 
+## Consumer Operations
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Operation | Options | Description  | Produces
+|events| initialRange | Amount of time in the past to begin receiving events (Long) | Event
+|statistics| **containerId** | Statistics based on resource usage | Statistics
+|===
+
+## Producer Operations
+
+The following producer operations are available
+
+### General
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Operation | Options | Description  | Returns
+| auth | Values obtained from the component general options| Validate auth configuration AuthResponse
+| info | | System wide information | Info
+| ping | | Ping the Docker server |
+| version | | Show the docker version information | Version
+|===
+
+
+### Images
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Operation | Options | Description | Body Content | Returns
+| image/build | noCache, quiet, remove, tag | Build an image from Dockerfile via stdin **InputStream** or **File** | InputStream
+| image/create | **repository** | Create an image | **InputStream** |CreateImageResponse
+| image/inspect | **imageId** | Inspect an image | | InspectImageResponse
+| image/list | filter, showAll | List images | | List&lt;Image&gt;
+| image/pull |  **repository**, registry, tag | Pull an image from the registry | InputStream
+| image/push | **name**, tag | Push an image on the registry | | InputStream
+| image/remove | **imageId**, force, noPrune | Remove an image | |
+| image/search | **term** | Search for images | | List&lt;SearchItem&gt;
+| image/tag | **imageId**, **repository**, **tag**, **force** | Tag an image into a repository | |
+|===
+
+### Containers
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Operation | Options | Description  | Body Content | Returns
+| container/attach | **containerId**, followStream, logs, stdErr, stdOut, timestamps  | Attach to a container | | InputStream
+| container/commit | **containerId**, author, attachStdErr, attachStdIn, attachStdOut, cmd, disableNetwork, env, exposedPorts, hostname, memory, memorySwap, message, openStdIn, pause, portSpecs, repository, stdInOnce, tag, tty, user, volumes, workingDir | Create a new image from a container's changes | | String
+| container/copyfile | **containerId**, **resource**, hostPath | Copy files or folders from a container | | InputStream
+| container/create | **image**, attachStdErr, attachStdIn, attachStdOut, capAdd, capDrop, cmd, cpuShares, disableNetwork, dns, domanName, entrypoint, env, exposedPorts, hostConfig, hostname, memoryLimit, memorySwap, name, portSpecs, stdInOnce, stdInOpen, tty, user, volumes, volumesFrom, workingDir | Create a container |  |CreateContainerResponse
+| container/diff | **containerId**, containerIdDiff | Differences on the container filesystem | | List&lt;ChangeLog&gt;
+| container/inspect | **containerId** | Inspect a container  | | InspectContainerResponse
+| container/kill | **containerId**, signal | Kill a container | |
+| container/list | before, limit, showSize, showAll, since | List containers | | List&lt;Container&gt;
+| container/log | **containerId**, followStream, stdErr, stdOut, tail, tailAll, timestamps | Get container logs | | InputStream
+| container/pause | **containerId** | Pause a container | |
+| container/remove | **containerId**, force, removeVolumes | Remove a container | |
+| container/restart | **containerId**, timeout | Restart a container |
+| container/start | **containerId** | Start a container | |
+| container/stop | **containerId**, timeout | Stop a container |
+| container/top | **containerId**, psArgs | List processes running in a container | |TopContainerResponse
+| container/unpause | **containerId** | Unpause a container | |
+| container/wait | **containerId** | Blocks until a container is stopped | |
+|===
+
+### Exec
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Operation | Options | Description  | Body Content | Returns
+| exec/create | **containerId**, attachStdErr, attachStdIn, attachStdOut, cmd, tty | Setup an *exec* instance on a running container | | ExecCreateCmdResponse
+| exec/start | **containerId**, detach, execId, tty | Starts a previously created *exec* instance | |InputStream
+|===
+
+
 ### Examples
 
 The following example consumes events from Docker:
