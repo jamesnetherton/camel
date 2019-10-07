@@ -3,31 +3,28 @@ package org.apache.camel.microprofile.health;
 import io.smallrye.health.SmallRyeHealth;
 import io.smallrye.health.SmallRyeHealthReporter;
 
-import java.util.Map;
-
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.apache.camel.BindToRegistry;
 import org.apache.camel.CamelContext;
-import org.apache.camel.CamelContextAware;
-import org.apache.camel.health.HealthCheckResultBuilder;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.health.HealthCheckRegistry;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.health.AbstractHealthCheck;
+import org.apache.camel.impl.health.RoutePerformanceCounterEvaluators;
+import org.apache.camel.impl.health.RoutesHealthCheckRepository;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(Arquillian.class)
+//@RunWith(Arquillian.class)
 public class TestHealthCheck {
 
     @BindToRegistry("dummyHealthCheck")
-    protected DummyHealthCheck dummyHealthCheck = new DummyHealthCheck("dummy");
+    protected DummyHealthCheck dummyHealthCheck = new DummyHealthCheck();
 
     @Inject
     SmallRyeHealthReporter reporter;
@@ -51,29 +48,44 @@ public class TestHealthCheck {
     }
 
     @Test
-    public void testHealth() {
-//        CamelContext camelContext = new DefaultCamelContext();
-        //camelContext.getRegistry().bind("dummy", dummyHealthCheck);
-//        reporter.addHealthCheck(new CamelHealthCheck());
+    public void testHealth() throws Exception {
+        CamelContext camelContext = new DefaultCamelContext();
+        camelContext.addRoutes(new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                from("direct:start")
+                    .throwException(new Exception());
+            }
+        });
+        camelContext.getRegistry().bind("dummy", dummyHealthCheck);
+        CamelMicroProfileHealthCheck check = new CamelMicroProfileHealthCheck();
+        check.setCamelContext(camelContext);
+
+        SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
+        reporter.addHealthCheck(check);
+
+        HealthCheckRegistry healthCheckRegistry = HealthCheckRegistry.get(camelContext);
+
+        RoutesHealthCheckRepository repository = new RoutesHealthCheckRepository();
+        healthCheckRegistry.addRepository(repository);
+        repository.addEvaluator(new RoutePerformanceCounterEvaluators.ExchangesFailed(1));
+//        repository.addEvaluator(new RoutePerformanceCounterEvaluators.LastProcessingTime(1000, 1));
 
         camelContext.start();
         try {
+            ProducerTemplate template = camelContext.createProducerTemplate();
+
+            for (int i = 0; i < 2; i++) {
+                try {
+                    template.sendBody("direct:start", null);
+                } catch (Throwable t) {
+                }
+            }
+
             SmallRyeHealth health = reporter.getHealth();
             reporter.reportHealth(System.out, health);
         } finally {
             camelContext.stop();
-        }
-    }
-
-    private class DummyHealthCheck extends AbstractHealthCheck {
-
-        protected DummyHealthCheck(String id) {
-            super(id);
-        }
-
-        @Override
-        protected void doCall(HealthCheckResultBuilder builder, Map<String, Object> options) {
-            builder.down();
         }
     }
 }
