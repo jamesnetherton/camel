@@ -220,6 +220,7 @@
         <include>org.apache.camel:camel-metrics</include>
         <include>org.apache.camel:camel-micrometer</include>
         <include>org.apache.camel:camel-microprofile-config</include>
+        <include>org.apache.camel:camel-microprofile-health</include>
         <include>org.apache.camel:camel-microprofile-metrics</include>
         <include>org.apache.camel:camel-milo</include>
         <include>org.apache.camel:camel-mina</include>
@@ -568,6 +569,7 @@
         <include>org.apache.camel:camel-master-starter</include>
         <include>org.apache.camel:camel-metrics-starter</include>
         <include>org.apache.camel:camel-micrometer-starter</include>
+        <include>org.apache.camel:camel-microprofile-health-starter</include>
         <include>org.apache.camel:camel-milo-starter</include>
         <include>org.apache.camel:camel-mina-starter</include>
         <include>org.apache.camel:camel-mllp-starter</include>
