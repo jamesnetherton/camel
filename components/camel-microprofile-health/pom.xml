@@ -42,7 +42,7 @@
 
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-support</artifactId>
+            <artifactId>camel-base</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -50,6 +50,14 @@
             <groupId>org.eclipse.microprofile.health</groupId>
             <artifactId>microprofile-health-api</artifactId>
             <version>2.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>2.0.SP1</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- testing -->

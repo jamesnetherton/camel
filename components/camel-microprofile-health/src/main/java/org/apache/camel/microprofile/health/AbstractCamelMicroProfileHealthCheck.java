@@ -18,22 +18,22 @@ package org.apache.camel.microprofile.health;
 
 import java.util.Collection;
 
+import javax.inject.Inject;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
 import org.apache.camel.health.HealthCheck.Result;
 import org.apache.camel.health.HealthCheck.State;
+import org.apache.camel.health.HealthCheckFilter;
 import org.apache.camel.health.HealthCheckHelper;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
-import org.eclipse.microprofile.health.Liveness;
-import org.eclipse.microprofile.health.Readiness;
 
-@Liveness
-@Readiness
-public class CamelMicroProfileHealthCheck implements HealthCheck, CamelContextAware {
+public abstract class AbstractCamelMicroProfileHealthCheck implements HealthCheck, CamelContextAware {
 
-    private CamelContext camelContext;
+    @Inject
+    protected CamelContext camelContext;
 
     @Override
     public HealthCheckResponse call() {
@@ -41,13 +41,25 @@ public class CamelMicroProfileHealthCheck implements HealthCheck, CamelContextAw
         builder.name("camel");
 
         if (camelContext != null) {
-            Collection<Result> results = HealthCheckHelper.invoke(camelContext);
+            Collection<Result> results = HealthCheckHelper.invoke(camelContext, (HealthCheckFilter) check -> check.getGroup().equals(getHealthGroupFilterExclude()));
             if (!results.isEmpty()) {
                 builder.up();
             }
 
             for (Result result: results) {
                 builder.withData(result.getCheck().getId(), result.getState().name());
+                result.getDetails().forEach((k, v) -> {
+                    if (v instanceof Long) {
+                        builder.withData(k, (Long) v);
+                    } else if (v instanceof String) {
+                        builder.withData(k, (String) v);
+                    } else if (v instanceof Boolean) {
+                        builder.withData(k, (Boolean) v);
+                    } else {
+                        builder.withData(k, v.toString());
+                    }
+                });
+
                 if (result.getState() == State.DOWN) {
                     builder.down();
                 }
@@ -66,4 +78,6 @@ public class CamelMicroProfileHealthCheck implements HealthCheck, CamelContextAw
     public CamelContext getCamelContext() {
         return this.camelContext;
     }
+
+    abstract String getHealthGroupFilterExclude();
 }
