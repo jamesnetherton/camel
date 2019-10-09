@@ -16,9 +16,6 @@
  */
 package org.apache.camel.microprofile.health;
 
-import io.smallrye.health.SmallRyeHealth;
-import io.smallrye.health.SmallRyeHealthReporter;
-
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -30,11 +27,14 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.stream.JsonParser;
 
+import io.smallrye.health.SmallRyeHealth;
+import io.smallrye.health.SmallRyeHealthReporter;
+
+import org.apache.camel.ServiceStatus;
 import org.apache.camel.health.HealthCheck;
 import org.apache.camel.health.HealthCheckRegistry;
 import org.apache.camel.health.HealthCheckResultBuilder;
-import org.apache.camel.impl.health.AbstractHealthCheck;
-import org.apache.camel.impl.health.ContextHealthCheck;
+import org.apache.camel.impl.engine.ExplicitCamelContextNameStrategy;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.junit.Before;
@@ -42,7 +42,7 @@ import org.junit.Test;
 
 public class CamelMicroProfileHealthTest extends CamelTestSupport {
 
-    SmallRyeHealthReporter reporter;
+    private SmallRyeHealthReporter reporter;
 
     @Before
     public void setUp() throws Exception {
@@ -52,39 +52,25 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
 
     @Test
     public void testCamelContextHealthCheck() {
-        HealthCheckRegistry healthCheckRegistry = HealthCheckRegistry.get(context);
+        context.setNameStrategy(new ExplicitCamelContextNameStrategy("health-context"));
 
-        ContextHealthCheck contextHealthCheck = new ContextHealthCheck();
-        contextHealthCheck.setCamelContext(context);
-        contextHealthCheck.getConfiguration().setEnabled(true);
-        healthCheckRegistry.register(contextHealthCheck);
-
-        CamelMicroProfileLivenessCheck livenessCheck = new CamelMicroProfileLivenessCheck();
-        livenessCheck.setCamelContext(context);
-        reporter.addHealthCheck(livenessCheck);
-
-        CamelMicroProfileReadinessCheck readinessCheck = new CamelMicroProfileReadinessCheck();
-        readinessCheck.setCamelContext(context);
-        reporter.addHealthCheck(readinessCheck);
+        CamelMicroProfileContextCheck check = new CamelMicroProfileContextCheck();
+        check.setCamelContext(context);
+        reporter.addHealthCheck(check);
 
         SmallRyeHealth health = reporter.getHealth();
 
-        JsonParser parser = Json.createParser(new StringReader(getHealthOutput(health)));
-        assertTrue("Health check content is empty", parser.hasNext());
-
-        parser.next();
-        JsonObject healthObject = parser.getObject();
+        JsonObject healthObject = getHealthJson(health);
 
         assertEquals(HealthCheckResponse.State.UP.name(), healthObject.getString("status"));
 
         JsonArray checks = healthObject.getJsonArray("checks");
-        assertEquals(2, checks.size());
+        assertEquals(1, checks.size());
 
-        Consumer<JsonObject> contextAssertion = jsonObject -> {
-            assertEquals(HealthCheckResponse.State.UP.name(), jsonObject.getString("context"));
-        };
-        assertHealthCheckOutput(checks.getJsonObject(0), contextAssertion);
-        assertHealthCheckOutput(checks.getJsonObject(1), contextAssertion);
+        assertHealthCheckOutput("camel", checks.getJsonObject(0), (checksJson) -> {
+            assertEquals(ServiceStatus.Started.toString(), checksJson.getString("contextStatus"));
+            assertEquals("health-context", checksJson.getString("name"));
+        });
     }
 
     @Test
@@ -101,20 +87,16 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
 
         SmallRyeHealth health = reporter.getHealth();
 
-        JsonParser parser = Json.createParser(new StringReader(getHealthOutput(health)));
-        assertTrue("Health check content is empty", parser.hasNext());
-
-        parser.next();
-        JsonObject healthObject = parser.getObject();
+        JsonObject healthObject = getHealthJson(health);
         assertEquals(HealthCheckResponse.State.UP.name(), healthObject.getString("status"));
 
         JsonArray checks = healthObject.getJsonArray("checks");
         assertEquals(1, checks.size());
 
         JsonObject checksObject = checks.getJsonObject(0);
-        assertHealthCheckOutput(checksObject, jsonObject -> {
-            assertEquals(HealthCheckResponse.State.UP.name(), jsonObject.getString("liveness-1"));
-            assertEquals(HealthCheckResponse.State.UP.name(), jsonObject.getString("liveness-2"));
+        assertHealthCheckOutput("camel-health-checks", checksObject, checksJson -> {
+            assertEquals(HealthCheckResponse.State.UP.name(), checksJson.getString("liveness-1"));
+            assertEquals(HealthCheckResponse.State.UP.name(), checksJson.getString("liveness-2"));
         });
     }
 
@@ -132,60 +114,29 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
 
         SmallRyeHealth health = reporter.getHealth();
 
-        JsonParser parser = Json.createParser(new StringReader(getHealthOutput(health)));
-        assertTrue("Health check content is empty", parser.hasNext());
-
-        parser.next();
-        JsonObject healthObject = parser.getObject();System.out.println(healthObject);
+        JsonObject healthObject = getHealthJson(health);
         assertEquals(HealthCheckResponse.State.UP.name(), healthObject.getString("status"));
 
         JsonArray checks = healthObject.getJsonArray("checks");
         assertEquals(1, checks.size());
 
-        assertHealthCheckOutput(checks.getJsonObject(0), jsonObject -> {
+        assertHealthCheckOutput("camel-health-checks", checks.getJsonObject(0), jsonObject -> {
             assertEquals(HealthCheckResponse.State.UP.name(), jsonObject.getString("readiness-1"));
             assertEquals(HealthCheckResponse.State.UP.name(), jsonObject.getString("readiness-2"));
         });
     }
 
-    @Test
-    public void testCamelMicroProfileCombinedHealthChecks() {
-
-    }
-
-    @Test
-    public void testCamelMicroProfileHealthMetaData() {
-        HealthCheckRegistry healthCheckRegistry = HealthCheckRegistry.get(context);
-
-        ContextHealthCheck contextHealthCheck = new ContextHealthCheck();
-        contextHealthCheck.setCamelContext(context);
-        contextHealthCheck.getConfiguration().setEnabled(true);
-        healthCheckRegistry.register(contextHealthCheck);
-
-        SmallRyeHealth health = reporter.getHealth();
-
-        JsonParser parser = Json.createParser(new StringReader(getHealthOutput(health)));
-        assertTrue("Health check content is empty", parser.hasNext());
-
-        parser.next();
-        JsonObject healthObject = parser.getObject();
-
-        assertEquals(HealthCheckResponse.State.UP.name(), healthObject.getString("status"));
-
-        JsonArray checks = healthObject.getJsonArray("checks");
-        assertEquals(2, checks.size());
-
-        Consumer<JsonObject> contextAssertion = jsonObject -> {
-            assertEquals(HealthCheckResponse.State.UP.name(), jsonObject.getString("context"));
-        };
-        assertHealthCheckOutput(checks.getJsonObject(0), contextAssertion);
-        assertHealthCheckOutput(checks.getJsonObject(1), contextAssertion);
-    }
-
-    private void assertHealthCheckOutput(JsonObject healthObject, Consumer<JsonObject> dataObjectAssertions) {
-        assertEquals("camel", healthObject.getString("name"));
+    private void assertHealthCheckOutput(String expectedName, JsonObject healthObject, Consumer<JsonObject> dataObjectAssertions) {
+        assertEquals(expectedName, healthObject.getString("name"));
         assertEquals(HealthCheckResponse.State.UP.name(), healthObject.getString("status"));
         dataObjectAssertions.accept(healthObject.getJsonObject("data"));
+    }
+
+    private JsonObject getHealthJson(SmallRyeHealth health) {
+        JsonParser parser = Json.createParser(new StringReader(getHealthOutput(health)));
+        assertTrue("Health check content is empty", parser.hasNext());
+        parser.next();
+        return parser.getObject();
     }
 
     private String getHealthOutput(SmallRyeHealth health) {

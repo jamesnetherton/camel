@@ -16,45 +16,37 @@
  */
 package org.apache.camel.microprofile.health;
 
-import java.util.Collection;
-
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
-import org.apache.camel.health.HealthCheck.Result;
-import org.apache.camel.health.HealthCheck.State;
-import org.apache.camel.health.HealthCheckFilter;
-import org.apache.camel.health.HealthCheckHelper;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+import org.eclipse.microprofile.health.Liveness;
+import org.eclipse.microprofile.health.Readiness;
 
-/**
- * Invokes Camel health checks and adds their results into the HealthCheckResponseBuilder
- */
-public abstract class AbstractCamelMicroProfileHealthCheck implements HealthCheck, CamelContextAware {
+@ApplicationScoped
+@Readiness
+@Liveness
+public class CamelMicroProfileContextCheck implements HealthCheck, CamelContextAware {
 
     @Inject
-    protected CamelContext camelContext;
+    private CamelContext camelContext;
 
     @Override
     public HealthCheckResponse call() {
         final HealthCheckResponseBuilder builder = HealthCheckResponse.builder();
-        builder.name("camel-health-checks");
+        builder.name("camel");
+        builder.down();
 
         if (camelContext != null) {
-            Collection<Result> results = HealthCheckHelper.invoke(camelContext, (HealthCheckFilter) check -> check.getGroup().equals(getHealthGroupFilterExclude()));
-            if (!results.isEmpty()) {
+            builder.withData("name", camelContext.getName());
+            builder.withData("contextStatus", camelContext.getStatus().name());
+
+            if (camelContext.getStatus().isStarted()) {
                 builder.up();
-            }
-
-            for (Result result: results) {
-                builder.withData(result.getCheck().getId(), result.getState().name());
-
-                if (result.getState() == State.DOWN) {
-                    builder.down();
-                }
             }
         }
 
@@ -70,6 +62,4 @@ public abstract class AbstractCamelMicroProfileHealthCheck implements HealthChec
     public CamelContext getCamelContext() {
         return this.camelContext;
     }
-
-    abstract String getHealthGroupFilterExclude();
 }
