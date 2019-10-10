@@ -77,9 +77,9 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
     public void testCamelMicroProfileLivenessCheck() {
         HealthCheckRegistry healthCheckRegistry = HealthCheckRegistry.get(context);
 
-        healthCheckRegistry.register(createLivenessCheck("liveness-1", null, builder -> builder.up()));
-        healthCheckRegistry.register(createLivenessCheck("liveness-2", null, builder -> builder.up()));
-        healthCheckRegistry.register(createReadinessCheck("readiness-3", null, builder -> builder.up()));
+        healthCheckRegistry.register(createLivenessCheck("liveness-1", builder -> builder.up()));
+        healthCheckRegistry.register(createLivenessCheck("liveness-2", builder -> builder.up()));
+        healthCheckRegistry.register(createReadinessCheck("readiness-3", builder -> builder.up()));
 
         CamelMicroProfileLivenessCheck livenessCheck = new CamelMicroProfileLivenessCheck();
         livenessCheck.setCamelContext(context);
@@ -104,9 +104,9 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
     public void testCamelMicroProfileReadinessCheck() {
         HealthCheckRegistry healthCheckRegistry = HealthCheckRegistry.get(context);
 
-        healthCheckRegistry.register(createLivenessCheck("liveness-1", null, builder -> builder.up()));
-        healthCheckRegistry.register(createReadinessCheck("readiness-1", null, builder -> builder.up()));
-        healthCheckRegistry.register(createReadinessCheck("readiness-2", null, builder -> builder.up()));
+        healthCheckRegistry.register(createLivenessCheck("liveness-1", builder -> builder.up()));
+        healthCheckRegistry.register(createReadinessCheck("readiness-1", builder -> builder.up()));
+        healthCheckRegistry.register(createReadinessCheck("readiness-2", builder -> builder.up()));
 
         CamelMicroProfileReadinessCheck readinessCheck = new CamelMicroProfileReadinessCheck();
         readinessCheck.setCamelContext(context);
@@ -145,8 +145,8 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
         return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
     }
 
-    private HealthCheck createLivenessCheck(String id, Map<String, Object> options, Consumer<HealthCheckResultBuilder> consumer) {
-        HealthCheck healthCheck = new AbstractCamelMicroProfileLivenessCheck(id, options) {
+    private HealthCheck createLivenessCheck(String id, Consumer<HealthCheckResultBuilder> consumer) {
+        HealthCheck healthCheck = new AbstractCamelMicroProfileLivenessCheck(id) {
             @Override
             protected void doCall(HealthCheckResultBuilder builder, Map<String, Object> options) {
                 consumer.accept(builder);
@@ -156,8 +156,8 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
         return healthCheck;
     }
 
-    private HealthCheck createReadinessCheck(String id, Map<String, Object> options, Consumer<HealthCheckResultBuilder> consumer) {
-        HealthCheck healthCheck = new AbstractCamelMicroProfileReadinessCheck(id, options) {
+    private HealthCheck createReadinessCheck(String id, Consumer<HealthCheckResultBuilder> consumer) {
+        HealthCheck healthCheck = new AbstractCamelMicroProfileReadinessCheck(id) {
             @Override
             protected void doCall(HealthCheckResultBuilder builder, Map<String, Object> options) {
                 consumer.accept(builder);

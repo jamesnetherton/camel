@@ -22,7 +22,7 @@ import org.eclipse.microprofile.health.Liveness;
 
 @ApplicationScoped
 @Liveness
-public class CamelMicroProfileLivenessCheck extends AbstractCamelMicroProfileHealthCheck {
+class CamelMicroProfileLivenessCheck extends AbstractCamelMicroProfileHealthCheck {
 
     @Override
     String getHealthGroupFilterExclude() {

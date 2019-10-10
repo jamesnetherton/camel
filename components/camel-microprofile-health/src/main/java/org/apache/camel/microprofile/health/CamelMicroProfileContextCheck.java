@@ -17,6 +17,7 @@
 package org.apache.camel.microprofile.health;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Vetoed;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
@@ -27,9 +28,13 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
 
+/**
+ * A simple health check implementation for checking the status of a CamelContext
+ */
 @ApplicationScoped
 @Readiness
 @Liveness
+@Vetoed
 public class CamelMicroProfileContextCheck implements HealthCheck, CamelContextAware {
 
     @Inject

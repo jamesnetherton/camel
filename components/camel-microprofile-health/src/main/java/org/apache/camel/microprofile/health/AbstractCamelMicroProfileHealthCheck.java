@@ -33,7 +33,7 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 /**
  * Invokes Camel health checks and adds their results into the HealthCheckResponseBuilder
  */
-public abstract class AbstractCamelMicroProfileHealthCheck implements HealthCheck, CamelContextAware {
+abstract class AbstractCamelMicroProfileHealthCheck implements HealthCheck, CamelContextAware {
 
     @Inject
     protected CamelContext camelContext;

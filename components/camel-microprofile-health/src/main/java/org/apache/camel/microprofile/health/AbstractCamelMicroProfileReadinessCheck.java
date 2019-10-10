@@ -20,6 +20,10 @@ import java.util.Map;
 
 import org.apache.camel.impl.health.AbstractHealthCheck;
 
+/**
+ * Ensures the implemented health check will be considered as a MicroProfile Health readiness check
+ */
+
 public abstract class AbstractCamelMicroProfileReadinessCheck extends AbstractHealthCheck {
 
     public static final String HEALTH_GROUP_READINESS = "camel.health.readiness";

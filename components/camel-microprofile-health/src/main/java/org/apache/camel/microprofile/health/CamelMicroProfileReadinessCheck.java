@@ -22,7 +22,7 @@ import org.eclipse.microprofile.health.Readiness;
 
 @ApplicationScoped
 @Readiness
-public class CamelMicroProfileReadinessCheck extends AbstractCamelMicroProfileHealthCheck {
+class CamelMicroProfileReadinessCheck extends AbstractCamelMicroProfileHealthCheck {
 
     @Override
     String getHealthGroupFilterExclude() {

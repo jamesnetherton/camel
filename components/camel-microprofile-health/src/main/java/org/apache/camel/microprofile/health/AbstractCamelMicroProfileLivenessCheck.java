@@ -20,6 +20,9 @@ import java.util.Map;
 
 import org.apache.camel.impl.health.AbstractHealthCheck;
 
+/**
+ * Ensures the implemented health check will be considered as a MicroProfile Health liveness check
+ */
 public abstract class AbstractCamelMicroProfileLivenessCheck extends AbstractHealthCheck {
 
     public static final String HEALTH_GROUP_LIVENESS = "camel.health.liveness";
