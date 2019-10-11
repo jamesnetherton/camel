@@ -16,12 +16,15 @@
  */
 package org.apache.camel.microprofile.health;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Vetoed;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
+import org.apache.camel.health.HealthCheck.Result;
+import org.apache.camel.health.HealthCheck.State;
+import org.apache.camel.impl.health.ContextHealthCheck;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
@@ -31,14 +34,18 @@ import org.eclipse.microprofile.health.Readiness;
 /**
  * A simple health check implementation for checking the status of a CamelContext
  */
-@ApplicationScoped
 @Readiness
 @Liveness
-@Vetoed
 public class CamelMicroProfileContextCheck implements HealthCheck, CamelContextAware {
 
     @Inject
     private CamelContext camelContext;
+
+    private ContextHealthCheck contextHealthCheck = new ContextHealthCheck();
+
+    public CamelMicroProfileContextCheck() {
+        contextHealthCheck.getConfiguration().setEnabled(true);
+    }
 
     @Override
     public HealthCheckResponse call() {
@@ -47,10 +54,14 @@ public class CamelMicroProfileContextCheck implements HealthCheck, CamelContextA
         builder.down();
 
         if (camelContext != null) {
-            builder.withData("name", camelContext.getName());
-            builder.withData("contextStatus", camelContext.getStatus().name());
+            contextHealthCheck.setCamelContext(camelContext);
 
-            if (camelContext.getStatus().isStarted()) {
+            Result result = contextHealthCheck.call();
+            Map<String, Object> details = result.getDetails();
+            builder.withData("name", details.get("context.name").toString());
+            builder.withData("contextStatus", details.get("context.status").toString());
+
+            if (result.getState().equals(State.UP)) {
                 builder.up();
             }
         }

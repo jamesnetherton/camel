@@ -28,11 +28,11 @@ public abstract class AbstractCamelMicroProfileReadinessCheck extends AbstractHe
 
     public static final String HEALTH_GROUP_READINESS = "camel.health.readiness";
 
-    protected AbstractCamelMicroProfileReadinessCheck(String id) {
+    public AbstractCamelMicroProfileReadinessCheck(String id) {
         super(HEALTH_GROUP_READINESS, id);
     }
 
-    protected AbstractCamelMicroProfileReadinessCheck(String id, Map<String, Object> meta) {
+    public AbstractCamelMicroProfileReadinessCheck(String id, Map<String, Object> meta) {
         super(HEALTH_GROUP_READINESS, id, meta);
     }
 }

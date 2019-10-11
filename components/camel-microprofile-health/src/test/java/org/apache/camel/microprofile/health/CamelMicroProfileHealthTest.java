@@ -53,7 +53,6 @@ public class CamelMicroProfileHealthTest extends CamelTestSupport {
     @Test
     public void testCamelContextHealthCheck() {
         context.setNameStrategy(new ExplicitCamelContextNameStrategy("health-context"));
-
         CamelMicroProfileContextCheck check = new CamelMicroProfileContextCheck();
         check.setCamelContext(context);
         reporter.addHealthCheck(check);

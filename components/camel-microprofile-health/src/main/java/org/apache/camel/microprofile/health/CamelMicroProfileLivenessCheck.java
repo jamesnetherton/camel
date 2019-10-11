@@ -16,13 +16,10 @@
  */
 package org.apache.camel.microprofile.health;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import org.eclipse.microprofile.health.Liveness;
 
-@ApplicationScoped
 @Liveness
-class CamelMicroProfileLivenessCheck extends AbstractCamelMicroProfileHealthCheck {
+public class CamelMicroProfileLivenessCheck extends AbstractCamelMicroProfileHealthCheck {
 
     @Override
     String getHealthGroupFilterExclude() {

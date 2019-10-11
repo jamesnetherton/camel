@@ -17,6 +17,7 @@
 package org.apache.camel.microprofile.health;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -26,6 +27,7 @@ import org.apache.camel.health.HealthCheck.Result;
 import org.apache.camel.health.HealthCheck.State;
 import org.apache.camel.health.HealthCheckFilter;
 import org.apache.camel.health.HealthCheckHelper;
+import org.apache.camel.impl.health.AbstractHealthCheck;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
@@ -50,10 +52,18 @@ abstract class AbstractCamelMicroProfileHealthCheck implements HealthCheck, Came
             }
 
             for (Result result: results) {
-                builder.withData(result.getCheck().getId(), result.getState().name());
+                Map<String, Object> details = result.getDetails();
+                boolean enabled = true;
 
-                if (result.getState() == State.DOWN) {
-                    builder.down();
+                if (details.containsKey(AbstractHealthCheck.CHECK_ENABLED)) {
+                    enabled = (boolean) details.get(AbstractHealthCheck.CHECK_ENABLED);
+                }
+
+                if (enabled) {
+                    builder.withData(result.getCheck().getId(), result.getState().name());
+                    if (result.getState() == State.DOWN) {
+                        builder.down();
+                    }
                 }
             }
         }

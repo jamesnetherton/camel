@@ -27,11 +27,11 @@ public abstract class AbstractCamelMicroProfileLivenessCheck extends AbstractHea
 
     public static final String HEALTH_GROUP_LIVENESS = "camel.health.liveness";
 
-    protected AbstractCamelMicroProfileLivenessCheck(String id) {
+    public AbstractCamelMicroProfileLivenessCheck(String id) {
         super(HEALTH_GROUP_LIVENESS, id);
     }
 
-    protected AbstractCamelMicroProfileLivenessCheck(String id, Map<String, Object> meta) {
+    public AbstractCamelMicroProfileLivenessCheck(String id, Map<String, Object> meta) {
         super(HEALTH_GROUP_LIVENESS, id, meta);
     }
 }
