@@ -25,4 +25,9 @@ public class CamelMicroProfileLivenessCheck extends AbstractCamelMicroProfileHea
     String getHealthGroupFilterExclude() {
         return AbstractCamelMicroProfileReadinessCheck.HEALTH_GROUP_READINESS;
     }
+
+    @Override
+    String getHealthCheckName() {
+        return "camel-liveness-checks";
+    }
 }

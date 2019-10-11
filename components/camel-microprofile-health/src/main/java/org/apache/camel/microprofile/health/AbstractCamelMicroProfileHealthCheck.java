@@ -43,10 +43,10 @@ abstract class AbstractCamelMicroProfileHealthCheck implements HealthCheck, Came
     @Override
     public HealthCheckResponse call() {
         final HealthCheckResponseBuilder builder = HealthCheckResponse.builder();
-        builder.name("camel-health-checks");
+        builder.name(getHealthCheckName());
 
         if (camelContext != null) {
-            Collection<Result> results = HealthCheckHelper.invoke(camelContext, (HealthCheckFilter) check -> check.getGroup().equals(getHealthGroupFilterExclude()));
+            Collection<Result> results = HealthCheckHelper.invoke(camelContext, (HealthCheckFilter) check -> check.getGroup() != null && check.getGroup().equals(getHealthGroupFilterExclude()));
             if (!results.isEmpty()) {
                 builder.up();
             }
@@ -82,4 +82,5 @@ abstract class AbstractCamelMicroProfileHealthCheck implements HealthCheck, Came
     }
 
     abstract String getHealthGroupFilterExclude();
+    abstract String getHealthCheckName();
 }
