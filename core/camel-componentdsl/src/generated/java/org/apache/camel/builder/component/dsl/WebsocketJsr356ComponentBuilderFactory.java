@@ -58,7 +58,7 @@ public interface WebsocketJsr356ComponentBuilderFactory {
          * 
          * Group: advanced
          */
-        default JSR356WebSocketComponentBuilder serverEndpointDeploymentStrategy(
+        default WebsocketJsr356ComponentBuilder serverEndpointDeploymentStrategy(
                 org.apache.camel.websocket.jsr356.ServerEndpointDeploymentStrategy serverEndpointDeploymentStrategy) {
             doSetProperty("serverEndpointDeploymentStrategy", serverEndpointDeploymentStrategy);
             return this;
