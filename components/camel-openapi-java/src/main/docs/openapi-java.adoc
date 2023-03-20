@@ -121,9 +121,9 @@ So using relative paths is much easier. See above for an example.
 
 |api.license.url |String |A URL to the license used for the API.
 
-|api.default.consumes |String |Comma separated list of acceptable request body content types when `RestParamType.body` is used without explicitly defining content types via `.consumes()`.
+|api.default.consumes |String |Comma separated list of default media types when `RestParamType.body` is used without providing a custom `.consumes()` configuration. The default value is `application/json`.
 
-|api.default.produces |String |Comma separated list of default content types when `RestParamType.body` is used without explicitly defining content types via `.consumes()`.
+|api.default.produces |String |Comma separated list of default media types when `outType` is used without providing a custom `.produces()` configuration. The default value is `application/json`.
 |===
 
 == Adding Security Definitions in API doc
