@@ -146,6 +146,7 @@ public class Export extends ExportBaseCommand {
         cmd.packageName = this.packageName;
         cmd.excludes = this.excludes;
         cmd.ignoreLoadingError = this.ignoreLoadingError;
+        cmd.includeQuickstartCode = this.includeQuickstartCode;
         // run export
         return cmd.export();
     }

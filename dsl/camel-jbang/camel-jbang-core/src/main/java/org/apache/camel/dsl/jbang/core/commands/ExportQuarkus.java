@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -33,6 +34,8 @@ import org.apache.camel.dsl.jbang.core.common.CatalogLoader;
 import org.apache.camel.dsl.jbang.core.common.CommandLineHelper;
 import org.apache.camel.dsl.jbang.core.common.RuntimeUtil;
 import org.apache.camel.dsl.jbang.core.common.VersionHelper;
+import org.apache.camel.dsl.jbang.core.quickstart.QuickstartCodeConfiguration;
+import org.apache.camel.dsl.jbang.core.quickstart.QuickstartCodeGenerator;
 import org.apache.camel.tooling.maven.MavenGav;
 import org.apache.camel.tooling.model.ArtifactModel;
 import org.apache.camel.util.CamelCaseOrderedProperties;
@@ -97,6 +100,14 @@ class ExportQuarkus extends Export {
             srcJavaDir = new File(srcJavaDirRoot, srcPackageName.replace('.', File.separatorChar));
         }
         srcJavaDir.mkdirs();
+        File srcTestDirRoot = new File(BUILD_DIR, "src/test/java");
+        File srcTestDir;
+        if (srcPackageName == null) {
+            srcTestDir = srcTestDirRoot;
+        } else {
+            srcTestDir = new File(srcTestDirRoot, srcPackageName.replace('.', File.separatorChar));
+        }
+        srcTestDir.mkdirs();
         File srcResourcesDir = new File(BUILD_DIR, "src/main/resources");
         srcResourcesDir.mkdirs();
         File srcCamelResourcesDir = new File(BUILD_DIR, "src/main/resources/camel");
@@ -115,12 +126,27 @@ class ExportQuarkus extends Export {
         });
         // copy docker files
         copyDockerFiles();
+
         // gather dependencies
         Set<String> deps = resolveDependencies(settings, profile);
+        Set<String> testDeps = new HashSet<>();
+
+        if (includeQuickstartCode) {
+            // Generate quickstart code
+            QuickstartCodeGenerator generator
+                    = new QuickstartCodeGenerator(profile, srcResourcesDir, srcJavaDir, srcTestDir, srcPackageName, deps);
+            generator.generateQuickstartCode();
+
+            // Update dependencies with additional required by quickstart code
+            QuickstartCodeConfiguration configuration = generator.getConfiguration();
+            deps.addAll(configuration.getDependencies());
+            testDeps.addAll(configuration.getTestDependencies());
+        }
+
         // copy local lib JARs
         copyLocalLibDependencies(deps);
         if ("maven".equals(buildTool)) {
-            createMavenPom(settings, new File(BUILD_DIR, "pom.xml"), deps);
+            createMavenPom(settings, new File(BUILD_DIR, "pom.xml"), deps, testDeps);
             if (mavenWrapper) {
                 copyMavenWrapper();
             }
@@ -347,7 +373,7 @@ class ExportQuarkus extends Export {
         IOHelper.copyAndCloseInput(is, new FileOutputStream(new File(docker, "Dockerfile.native-micro")));
     }
 
-    private void createMavenPom(File settings, File pom, Set<String> deps) throws Exception {
+    private void createMavenPom(File settings, File pom, Set<String> deps, Set<String> testDeps) throws Exception {
         String[] ids = gav.split(":");
 
         InputStream is = ExportQuarkus.class.getClassLoader().getResourceAsStream("templates/" + pomTemplateName);
@@ -437,6 +463,20 @@ class ExportQuarkus extends Export {
             sb.append("        </dependency>\n");
         }
         context = context.replaceFirst("\\{\\{ \\.CamelDependencies }}", sb.toString());
+
+        StringBuilder testDependencies = new StringBuilder();
+        for (String dep : testDeps) {
+            MavenGav gav = parseMavenGav(dep);
+            testDependencies.append("        <dependency>\n");
+            testDependencies.append("            <groupId>").append(gav.getGroupId()).append("</groupId>\n");
+            testDependencies.append("            <artifactId>").append(gav.getArtifactId()).append("</artifactId>\n");
+            if (gav.getVersion() != null) {
+                testDependencies.append("            <version>").append(gav.getVersion()).append("</version>\n");
+            }
+            testDependencies.append("            <scope>test</scope>\n");
+            testDependencies.append("        </dependency>\n");
+        }
+        context = context.replaceFirst("\\{\\{ \\.CamelTestDependencies }}", testDependencies.toString());
 
         IOHelper.writeText(context, new FileOutputStream(pom, false));
     }

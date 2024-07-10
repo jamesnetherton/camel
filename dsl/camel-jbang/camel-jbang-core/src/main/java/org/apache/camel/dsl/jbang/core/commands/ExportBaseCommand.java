@@ -217,6 +217,10 @@ public abstract class ExportBaseCommand extends CamelCommand {
                         description = "Whether to ignore route loading and compilation errors (use this with care!)")
     protected boolean ignoreLoadingError;
 
+    @CommandLine.Option(names = { "--include-quickstart-code" },
+                        description = "Whether to include quickstart code provided by the selected dependencies")
+    protected boolean includeQuickstartCode;
+
     protected boolean symbolicLink;     // copy source files using symbolic link
 
     public String pomTemplateName;   // support for specialised pom templates
