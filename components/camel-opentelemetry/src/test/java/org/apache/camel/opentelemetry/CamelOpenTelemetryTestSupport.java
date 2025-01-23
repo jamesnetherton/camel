@@ -239,14 +239,7 @@ class CamelOpenTelemetryTestSupport extends CamelTestSupport {
         }
 
         if (td.getParentId() != -1) {
-            try {
-                assertEquals(spans.get(td.getParentId()).getSpanId(), span.getParentSpanId(), td.getLabel());
-            } catch (Throwable e) {
-                spans.forEach(s -> {
-                    System.out.println(s.getParentSpanId() + " :: " + s.getSpanId() + " :: " + s.getAttributes());
-                });
-                throw e;
-            }
+            assertEquals(spans.get(td.getParentId()).getSpanId(), span.getParentSpanId(), td.getLabel());
         }
         if (!td.getTags().isEmpty()) {
             for (Map.Entry<String, String> entry : td.getTags().entrySet()) {
