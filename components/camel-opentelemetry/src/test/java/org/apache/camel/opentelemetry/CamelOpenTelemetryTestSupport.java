@@ -39,6 +39,7 @@ import org.apache.camel.CamelContextAware;
 import org.apache.camel.spi.InterceptStrategy;
 import org.apache.camel.spi.ThreadPoolFactory;
 import org.apache.camel.test.junit5.CamelTestSupport;
+import org.apache.camel.util.ObjectHelper;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -226,6 +227,10 @@ class CamelOpenTelemetryTestSupport extends CamelTestSupport {
 
         assertEquals(td.getKind(), span.getKind(), td.getLabel());
 
+        if (ObjectHelper.isNotEmpty(td.getTraceId())) {
+            assertEquals(td.getTraceId(), span.getTraceId());
+        }
+
         if (!td.getLogMessages().isEmpty()) {
             assertEquals(td.getLogMessages().size(), span.getEvents().size(), td.getLabel());
             for (int i = 0; i < td.getLogMessages().size(); i++) {
@@ -234,7 +239,14 @@ class CamelOpenTelemetryTestSupport extends CamelTestSupport {
         }
 
         if (td.getParentId() != -1) {
-            assertEquals(spans.get(td.getParentId()).getSpanId(), span.getParentSpanId(), td.getLabel());
+            try {
+                assertEquals(spans.get(td.getParentId()).getSpanId(), span.getParentSpanId(), td.getLabel());
+            } catch (Throwable e) {
+                spans.forEach(s -> {
+                    System.out.println(s.getParentSpanId() + " :: " + s.getSpanId() + " :: " + s.getAttributes());
+                });
+                throw e;
+            }
         }
         if (!td.getTags().isEmpty()) {
             for (Map.Entry<String, String> entry : td.getTags().entrySet()) {
