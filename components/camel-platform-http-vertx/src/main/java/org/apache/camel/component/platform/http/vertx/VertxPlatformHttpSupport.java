@@ -180,16 +180,13 @@ public final class VertxPlatformHttpSupport {
             final Object body = toHttpResponse(ctx, camelExchange.getMessage(), headerFilterStrategy, muteExceptions);
             if (body == null) {
                 LOGGER.trace("No payload to send as reply for exchange: {}", camelExchange);
-                ctx.end();
-                promise.complete();
+                ctx.end().onComplete(promise);
             } else if (body instanceof String) {
-                ctx.end((String) body);
-                promise.complete();
+                ctx.end((String) body).onComplete(promise);
             } else if (body instanceof InputStream) {
                 writeResponseAs(promise, ctx, (InputStream) body);
             } else if (body instanceof Buffer) {
-                ctx.end((Buffer) body);
-                promise.complete();
+                ctx.end((Buffer) body).onComplete(promise);
             } else {
                 writeResponseAsFallback(promise, camelExchange, body, ctx);
             }
@@ -217,8 +214,7 @@ public final class VertxPlatformHttpSupport {
     private static void writeResponseAs(Promise<Void> promise, RoutingContext ctx, ByteBuffer bb) {
         final Buffer b = Buffer.buffer(bb.capacity());
         b.setBytes(0, bb);
-        ctx.end(b);
-        promise.complete();
+        ctx.end(b).onComplete(promise);
     }
 
     private static void writeResponseAs(Promise<Void> promise, RoutingContext ctx, InputStream is) {
@@ -241,7 +237,7 @@ public final class VertxPlatformHttpSupport {
     }
 
     private static void onComplete(Promise<Void> promise, AsyncInputStream asyncInputStream) {
-        asyncInputStream.close(closeResult -> promise.complete());
+        asyncInputStream.close(promise);
     }
 
     static void populateCamelHeaders(
