@@ -30,6 +30,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
+import io.fabric8.kubernetes.api.model.PodStatus;
+import io.fabric8.kubernetes.api.model.PodStatusBuilder;
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
 import io.fabric8.kubernetes.client.RequestConfig;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
@@ -46,6 +48,9 @@ import org.slf4j.LoggerFactory;
 public class LockTestServer<T extends HasMetadata> extends KubernetesMockServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(LockTestServer.class);
+
+    private static final PodStatus RUNNING = new PodStatusBuilder().withPhase("Running").build();
+    private static final PodStatus FAILED = new PodStatusBuilder().withPhase("Failed").build();
 
     private boolean refuseRequests;
 
@@ -69,7 +74,12 @@ public class LockTestServer<T extends HasMetadata> extends KubernetesMockServer 
                 .andReply(200,
                         request -> new PodListBuilder().withNewMetadata().withResourceVersion("1").and()
                                 .withItems(getCurrentPods().stream()
-                                        .map(name -> new PodBuilder().withNewMetadata().withName(name).and().build())
+                                        .map(name -> new PodBuilder()
+                                                .withNewMetadata()
+                                                .withName(name)
+                                                .endMetadata()
+                                                .withStatus(name.startsWith("badpod") ? FAILED : RUNNING)
+                                                .build())
                                         .collect(Collectors.toList()))
                                 .build())
                 .always();
