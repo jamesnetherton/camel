@@ -75,8 +75,8 @@ final class FileLockClusterUtils {
 
         ByteBuffer buf = ByteBuffer.allocate(LOCKFILE_BUFFER_SIZE);
         buf.put(uuidBytes);
-        buf.putLong(clusterLeaderInfo.getHeartbeatUpdateIntervalNanoseconds());
-        buf.putLong(clusterLeaderInfo.getHeartbeatNanoseconds());
+        buf.putLong(clusterLeaderInfo.getHeartbeatUpdateIntervalMilliseconds());
+        buf.putLong(clusterLeaderInfo.getHeartbeatMilliseconds());
         buf.flip();
 
         if (forceMetaData) {
@@ -130,15 +130,15 @@ final class FileLockClusterUtils {
      *                                   leader state
      * @param  previousClusterLeaderInfo The {@link FileLockClusterLeaderInfo} instance representing the previously
      *                                   recorded cluster leader state
-     * @param  currentNanoTime           The current time in nanoseconds, as returned by {@link System#nanoTime()} is
-     *                                   held
+     * @param  currentTimeMillis         The current time in milliseconds, as returned by
+     *                                   {@link System#currentTimeMillis()} is held
      * @return                           {@code true} if the leader is considered stale. {@code false} if the leader is
      *                                   still active
      */
     static boolean isLeaderStale(
             FileLockClusterLeaderInfo latestClusterLeaderInfo,
             FileLockClusterLeaderInfo previousClusterLeaderInfo,
-            long currentNanoTime,
+            long currentTimeMillis,
             int heartbeatTimeoutMultiplier) {
 
         if (latestClusterLeaderInfo == null) {
@@ -150,8 +150,8 @@ final class FileLockClusterUtils {
             return false;
         }
 
-        final long latestHeartbeat = latestClusterLeaderInfo.getHeartbeatNanoseconds();
-        final long previousObservedHeartbeat = previousClusterLeaderInfo.getHeartbeatNanoseconds();
+        final long latestHeartbeat = latestClusterLeaderInfo.getHeartbeatMilliseconds();
+        final long previousObservedHeartbeat = previousClusterLeaderInfo.getHeartbeatMilliseconds();
 
         if (latestHeartbeat > previousObservedHeartbeat) {
             // Not stale. Cluster leader is alive and updating the lock file
@@ -164,9 +164,9 @@ final class FileLockClusterUtils {
         }
 
         // Check if cluster leader has updated the lock file within acceptable limits
-        final long elapsed = currentNanoTime - previousObservedHeartbeat;
-        final long heartbeatUpdateIntervalNanoseconds = latestClusterLeaderInfo.getHeartbeatUpdateIntervalNanoseconds();
-        final long timeout = heartbeatUpdateIntervalNanoseconds * (long) heartbeatTimeoutMultiplier;
+        final long elapsed = currentTimeMillis - previousObservedHeartbeat;
+        final long heartbeatUpdateIntervalMilliseconds = latestClusterLeaderInfo.getHeartbeatUpdateIntervalMilliseconds();
+        final long timeout = heartbeatUpdateIntervalMilliseconds * (long) heartbeatTimeoutMultiplier;
         return elapsed > timeout;
     }
 }

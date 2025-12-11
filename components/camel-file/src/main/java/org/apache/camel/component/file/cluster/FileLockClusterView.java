@@ -56,7 +56,7 @@ public class FileLockClusterView extends AbstractCamelClusterView {
     private FileLock lock;
     private ScheduledFuture<?> task;
     private int heartbeatTimeoutMultiplier;
-    private long acquireLockIntervalDelayNanoseconds;
+    private long acquireLockIntervalDelayMilliseconds;
 
     FileLockClusterView(FileLockClusterService cluster, String namespace) {
         super(cluster, namespace);
@@ -114,7 +114,7 @@ public class FileLockClusterView extends AbstractCamelClusterView {
         }
 
         FileLockClusterService service = getClusterService().unwrap(FileLockClusterService.class);
-        acquireLockIntervalDelayNanoseconds = TimeUnit.NANOSECONDS.convert(
+        acquireLockIntervalDelayMilliseconds = TimeUnit.MILLISECONDS.convert(
                 service.getAcquireLockInterval(),
                 service.getAcquireLockIntervalUnit());
 
@@ -275,7 +275,7 @@ public class FileLockClusterView extends AbstractCamelClusterView {
         return FileLockClusterUtils.isLeaderStale(
                 clusterLeaderInfo,
                 previousClusterLeaderInfo,
-                System.nanoTime(),
+                System.currentTimeMillis(),
                 heartbeatTimeoutMultiplier);
     }
 
@@ -286,8 +286,8 @@ public class FileLockClusterView extends AbstractCamelClusterView {
     void writeClusterLeaderInfo(boolean forceMetaData) throws IOException {
         FileLockClusterLeaderInfo latestClusterLeaderInfo = new FileLockClusterLeaderInfo(
                 localMember.getUuid(),
-                acquireLockIntervalDelayNanoseconds,
-                System.nanoTime());
+                acquireLockIntervalDelayMilliseconds,
+                System.currentTimeMillis());
 
         FileLockClusterUtils.writeClusterLeaderInfo(
                 leaderDataPath,
