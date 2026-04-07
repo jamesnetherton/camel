@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,9 +32,6 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
-import com.networknt.schema.dialect.Dialect;
-import com.networknt.schema.dialect.Dialects;
-import com.networknt.schema.keyword.NonValidationKeyword;
 
 /**
  * YAML DSL validator that tooling can use to validate Camel source files if they can be parsed and are valid according
@@ -69,16 +65,10 @@ public class YamlValidator {
         var version = getSpecificationVersion(model).orElse(SpecificationVersion.DRAFT_4);
         var config = SchemaRegistryConfig.builder().locale(Locale.ENGLISH).build();
 
-        // include deprecated as an unknown keyword so the validator does not WARN log about this
-
-        var dialect = Dialect.builder(version.getDialectId())
-                .specificationVersion(version)
-                .keyword(new NonValidationKeyword("deprecated"))
-                .build();
-
-        var schemaRegistry = SchemaRegistry.withDefaultDialect(dialect,
+        var schemaRegistry = SchemaRegistry.withDefaultDialect(version,
                 builder -> builder.schemaRegistryConfig(config));
 
+        // Use a proper URI for the schema location to ensure $ref resolution works
         var schemaLocation = SchemaLocation.of(LOCATION);
         schema = schemaRegistry.getSchema(schemaLocation, model);
     }
