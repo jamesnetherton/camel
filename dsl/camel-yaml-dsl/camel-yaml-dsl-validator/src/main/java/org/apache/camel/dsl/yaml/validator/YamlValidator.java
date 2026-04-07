@@ -17,19 +17,25 @@
 package org.apache.camel.dsl.yaml.validator;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Consumer;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.networknt.schema.JsonMetaSchema;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.NonValidationKeyword;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersionDetector;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SchemaRegistryConfig;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.NonValidationKeyword;
 
 /**
  * YAML DSL validator that tooling can use to validate Camel source files if they can be parsed and are valid according
@@ -37,13 +43,12 @@ import com.networknt.schema.ValidationMessage;
  */
 public class YamlValidator {
 
-    private static final String DRAFT = "http://json-schema.org/draft-04/schema#";
     private static final String LOCATION = "/schema/camelYamlDsl.json";
 
     private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    private JsonSchema schema;
+    private Schema schema;
 
-    public List<ValidationMessage> validate(File file) throws Exception {
+    public List<Error> validate(File file) throws Exception {
         if (schema == null) {
             init();
         }
@@ -51,20 +56,39 @@ public class YamlValidator {
             var target = mapper.readTree(file);
             return new ArrayList<>(schema.validate(target));
         } catch (Exception e) {
-            ValidationMessage vm = ValidationMessage.builder().type("parser")
-                    .messageSupplier(() -> e.getClass().getName() + ": " + e.getMessage()).build();
-            return List.of(vm);
+            Error error = Error.builder()
+                    .messageKey("parser")
+                    .format(new MessageFormat(e.getClass().getName() + ": " + e.getMessage()))
+                    .build();
+            return List.of(error);
         }
     }
 
     public void init() throws Exception {
         var model = mapper.readTree(YamlValidator.class.getResourceAsStream(LOCATION));
-        var factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(model));
-        var config = SchemaValidatorsConfig.builder().locale(Locale.ENGLISH).build();
+        var version = getSpecificationVersion(model).orElse(SpecificationVersion.DRAFT_4);
+        var config = SchemaRegistryConfig.builder().locale(Locale.ENGLISH).build();
+
         // include deprecated as an unknown keyword so the validator does not WARN log about this
-        JsonMetaSchema jms = factory.getMetaSchema(DRAFT, null);
-        jms.getKeywords().put("deprecated", new NonValidationKeyword("deprecated"));
-        schema = factory.getSchema(model, config);
+
+        var dialect = Dialect.builder(version.getDialectId())
+                .specificationVersion(version)
+                .keyword(new NonValidationKeyword("deprecated"))
+                .build();
+
+        var schemaRegistry = SchemaRegistry.withDefaultDialect(dialect,
+                builder -> builder.schemaRegistryConfig(config));
+
+        var schemaLocation = SchemaLocation.of(LOCATION);
+        schema = schemaRegistry.getSchema(schemaLocation, model);
+    }
+
+    private static Optional<SpecificationVersion> getSpecificationVersion(JsonNode schemaNode) {
+        var schemaField = schemaNode.get("$schema");
+        if (schemaField != null && schemaField.isTextual()) {
+            return SpecificationVersion.fromDialectId(schemaField.asText());
+        }
+        return Optional.empty();
     }
 
 }
