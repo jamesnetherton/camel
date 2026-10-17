@@ -18,19 +18,21 @@ package org.apache.camel.language.jq;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.thisptr.jackson.jq.Scope;
+import net.thisptr.jackson.jq.v2.core.Environment;
+import net.thisptr.jackson.jq.v2.spi.exception.JsonQueryException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultExchange;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class JqExpressionTest {
     public static final ObjectMapper MAPPER = new ObjectMapper();
@@ -133,13 +135,14 @@ public class JqExpressionTest {
         try (CamelContext context = new DefaultCamelContext()) {
             ArrayNode node = MAPPER.createArrayNode();
 
-            var n1 = MAPPER.createObjectNode().with("commit");
-            n1.with("commit").put("name", "Stephen Dolan");
-            n1.with("commit").put("message", "Merge pull request #163 from stedolan/utf8-fixes\n\nUtf8 fixes. Closes #161");
+            var n1 = MAPPER.createObjectNode().withObjectProperty("commit");
+            n1.withObjectProperty("commit").put("name", "Stephen Dolan");
+            n1.withObjectProperty("commit").put("message",
+                    "Merge pull request #163 from stedolan/utf8-fixes\n\nUtf8 fixes. Closes #161");
 
             var n2 = MAPPER.createObjectNode();
-            n2.with("commit").put("name", "Nicolas Williams");
-            n2.with("commit").put("message", "Reject all overlong UTF8 sequences.");
+            n2.withObjectProperty("commit").put("name", "Nicolas Williams");
+            n2.withObjectProperty("commit").put("message", "Reject all overlong UTF8 sequences.");
 
             node.add(n1);
             node.add(n2);
@@ -161,8 +164,8 @@ public class JqExpressionTest {
     public void setField() throws Exception {
         try (CamelContext context = new DefaultCamelContext()) {
             ObjectNode node = MAPPER.createObjectNode();
-            node.with("commit").put("name", "Nicolas Williams");
-            node.with("commit").put("message", "Reject all overlong UTF8 sequences.");
+            node.withObjectProperty("commit").put("name", "Nicolas Williams");
+            node.withObjectProperty("commit").put("message", "Reject all overlong UTF8 sequences.");
 
             Exchange exchange = new DefaultExchange(context);
             exchange.getMessage().setBody(node);
@@ -183,8 +186,8 @@ public class JqExpressionTest {
     public void setFieldFromHeader() throws Exception {
         try (CamelContext context = new DefaultCamelContext()) {
             ObjectNode node = MAPPER.createObjectNode();
-            node.with("commit").put("name", "Nicolas Williams");
-            node.with("commit").put("message", "Reject all overlong UTF8 sequences.");
+            node.withObjectProperty("commit").put("name", "Nicolas Williams");
+            node.withObjectProperty("commit").put("message", "Reject all overlong UTF8 sequences.");
 
             Exchange exchange = new DefaultExchange(context);
             exchange.getMessage().setHeader("CommitterName", "Andrea");
@@ -206,8 +209,8 @@ public class JqExpressionTest {
     public void setFieldFromProperty() throws Exception {
         try (CamelContext context = new DefaultCamelContext()) {
             ObjectNode node = MAPPER.createObjectNode();
-            node.with("commit").put("name", "Nicolas Williams");
-            node.with("commit").put("message", "Reject all overlong UTF8 sequences.");
+            node.withObjectProperty("commit").put("name", "Nicolas Williams");
+            node.withObjectProperty("commit").put("message", "Reject all overlong UTF8 sequences.");
 
             Exchange exchange = new DefaultExchange(context);
             exchange.setProperty("CommitterName", "Andrea");
@@ -229,8 +232,8 @@ public class JqExpressionTest {
     public void removeField() throws Exception {
         try (CamelContext context = new DefaultCamelContext()) {
             ObjectNode node = MAPPER.createObjectNode();
-            node.with("commit").put("name", "Nicolas Williams");
-            node.with("commit").put("message", "Reject all overlong UTF8 sequences.");
+            node.withObjectProperty("commit").put("name", "Nicolas Williams");
+            node.withObjectProperty("commit").put("message", "Reject all overlong UTF8 sequences.");
 
             Exchange exchange = new DefaultExchange(context);
             exchange.getMessage().setBody(node);
@@ -248,17 +251,19 @@ public class JqExpressionTest {
     }
 
     @Test
-    public void customScope() throws Exception {
+    public void customEnvironment() throws Exception {
         try (CamelContext context = new DefaultCamelContext()) {
-            Scope root = Scope.newEmptyScope();
+            // without the classpath function loader, the Camel functions are not available
+            Environment<JsonNode> environment = JqFunctions.newEnvironmentBuilder(context).clearFunctionLoaders().build();
 
             JqExpression expression = new JqExpression(".foo");
-            expression.setScope(root);
+            expression.setEnvironment(environment);
             expression.init(context);
 
-            assertThat(expression.getScope()).isSameAs(root);
-            assertThat(expression.getScope().getParentScope()).isNull();
-            assertThat(expression.getScope().getLocalFunctions()).doesNotContainKeys("header/1", "header/2");
+            assertThat(expression.getEnvironment()).isSameAs(environment);
+            assertThatThrownBy(() -> environment.compile("header(\"foo\")"))
+                    .isInstanceOf(JsonQueryException.class)
+                    .hasMessageContaining("header/1");
         }
     }
 

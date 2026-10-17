@@ -22,8 +22,8 @@ include::partial$language-options.adoc[]
 
 === Message body types
 
-Camel JQ leverages `camel-jackson` for type conversion.
-To enable camel-jackson POJO type conversion, refer to the Camel Jackson documentation.
+Camel JQ leverages `camel-jackson3` (Jackson 3) for type conversion.
+To enable POJO type conversion, refer to the Camel Jackson 3 documentation.
 
 === Using header as input
 

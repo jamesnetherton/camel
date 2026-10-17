@@ -21,12 +21,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import net.thisptr.jackson.jq.JsonQuery;
-import net.thisptr.jackson.jq.Scope;
-import net.thisptr.jackson.jq.Versions;
-import net.thisptr.jackson.jq.exception.JsonQueryException;
+import net.thisptr.jackson.jq.v2.core.Environment;
+import net.thisptr.jackson.jq.v2.core.JsonQuery;
+import net.thisptr.jackson.jq.v2.spi.exception.JsonQueryException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
@@ -38,15 +35,17 @@ import org.apache.camel.spi.ExpressionResultTypeAware;
 import org.apache.camel.support.ExpressionAdapter;
 import org.apache.camel.support.MessageHelper;
 import org.apache.camel.support.builder.ExpressionBuilder;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.BooleanNode;
 
 public class JqExpression extends ExpressionAdapter implements ExpressionResultTypeAware {
 
     private final String expression;
 
-    private Scope scope;
+    private Environment<JsonNode> environment;
     private String resultTypeName;
     private Class<?> resultType;
-    private JsonQuery query;
+    private JsonQuery<JsonNode> query;
     private TypeConverter typeConverter;
     private Expression source;
 
@@ -54,8 +53,8 @@ public class JqExpression extends ExpressionAdapter implements ExpressionResultT
         this(null, expression);
     }
 
-    public JqExpression(Scope scope, String expression) {
-        this.scope = scope;
+    public JqExpression(Environment<JsonNode> environment, String expression) {
+        this.environment = environment;
         this.expression = expression;
     }
 
@@ -65,14 +64,14 @@ public class JqExpression extends ExpressionAdapter implements ExpressionResultT
         if (this.query == null) {
             super.init(camelContext);
 
-            if (this.scope == null) {
+            if (this.environment == null) {
                 JqLanguage lan = (JqLanguage) camelContext.resolveLanguage("jq");
-                this.scope = Scope.newChildScope(lan.getRootScope());
+                this.environment = lan.getEnvironment();
             }
 
             this.typeConverter = camelContext.getTypeConverter();
             try {
-                this.query = JsonQuery.compile(this.expression, Versions.JQ_1_7);
+                this.query = this.environment.compile(this.expression);
             } catch (JsonQueryException e) {
                 throw new ExpressionIllegalSyntaxException(this.expression, e);
             }
@@ -89,12 +88,12 @@ public class JqExpression extends ExpressionAdapter implements ExpressionResultT
         }
     }
 
-    public Scope getScope() {
-        return scope;
+    public Environment<JsonNode> getEnvironment() {
+        return environment;
     }
 
-    public void setScope(Scope scope) {
-        this.scope = scope;
+    public void setEnvironment(Environment<JsonNode> environment) {
+        this.environment = environment;
     }
 
     @Override
@@ -153,7 +152,7 @@ public class JqExpression extends ExpressionAdapter implements ExpressionResultT
             final List<JsonNode> outputs = new ArrayList<>(1);
             final JsonNode payload = getPayload(exchange);
 
-            this.query.apply(scope, payload, outputs::add);
+            this.query.apply(payload, outputs::add);
 
             if (outputs.size() == 1) {
                 JsonNode out = outputs.get(0);
