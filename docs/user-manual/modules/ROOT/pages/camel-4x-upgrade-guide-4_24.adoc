@@ -4757,3 +4757,8 @@ Changes to API types:
 * Objects you put in a `DataPart` or in metadata are written with Jackson 3. It ignores `com.fasterxml.jackson.databind.annotation`
   annotations such as `@JsonSerialize`, and it writes a Jackson 2 `JsonNode` as a bean, with properties such as `nodeType`,
   instead of as its JSON. Use a Jackson 3 `JsonNode` or a `Map` instead.
+=== Jackson 3 - camel generate schema
+
+`camel generate schema` now uses `jsonschema-generator` 5, which is based on Jackson 3. The annotations in
+`com.fasterxml.jackson.annotation` still apply, but `@JsonNaming` from `com.fasterxml.jackson.databind.annotation` is ignored:
+the schema of such a class has the Java field names. Use `@JsonNaming` from `tools.jackson.databind.annotation` to apply it.
