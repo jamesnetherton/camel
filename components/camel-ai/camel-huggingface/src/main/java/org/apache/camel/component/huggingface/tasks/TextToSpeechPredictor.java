@@ -22,12 +22,13 @@ import java.nio.charset.StandardCharsets;
 import ai.djl.modality.Input;
 import ai.djl.modality.Output;
 import ai.djl.modality.audio.Audio;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.component.huggingface.HuggingFaceConstants;
 import org.apache.camel.component.huggingface.HuggingFaceEndpoint;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Predictor for the TEXT_TO_SPEECH task, generating raw audio waveform from text input.
@@ -81,7 +82,7 @@ import org.apache.camel.component.huggingface.HuggingFaceEndpoint;
  */
 public class TextToSpeechPredictor extends AbstractTaskPredictor {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
 
     public TextToSpeechPredictor(HuggingFaceEndpoint endpoint) {
         super(endpoint);

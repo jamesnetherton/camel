@@ -24,13 +24,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import ai.djl.modality.Input;
 import ai.djl.modality.Output;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.component.huggingface.HuggingFaceConstants;
 import org.apache.camel.component.huggingface.HuggingFaceEndpoint;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Predictor for the CHAT task, handling conversational LLM inference with automatic history management.
@@ -97,7 +98,7 @@ import org.apache.camel.component.huggingface.HuggingFaceEndpoint;
  */
 public class ChatPredictor extends AbstractTaskPredictor {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
 
     // In-memory chat history (key = memoryId, value = JSON string of list of dicts)
     private final Map<String, String> chatHistories = new ConcurrentHashMap<>();
@@ -178,13 +179,13 @@ public class ChatPredictor extends AbstractTaskPredictor {
             JsonNode first = node.get(0);
             if (first.has("generated_text")) {
                 JsonNode genText = first.get("generated_text");
-                if (genText.isTextual()) {
-                    generatedText = genText.asText();
+                if (genText.isString()) {
+                    generatedText = genText.asString("");
                 } else if (genText.isArray()) {
                     JsonNode lastMessage = genText.get(genText.size() - 1);
-                    String role = lastMessage.get("role").asText();
+                    String role = lastMessage.get("role").asString("");
                     if (role.equals("assistant") || role.equals("AI")) {
-                        generatedText = lastMessage.get("content").asText();
+                        generatedText = lastMessage.get("content").asString("");
                     }
                 }
             }
