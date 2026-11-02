@@ -24,6 +24,10 @@ import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.Processor;
 import org.apache.camel.support.LanguageSupport;
 
+/**
+ * @deprecated use {@link org.apache.camel.component.kafka.transform.jackson3.InsertField}, which uses Jackson 3.
+ */
+@Deprecated(since = "4.24")
 public class InsertField implements Processor {
 
     String field;

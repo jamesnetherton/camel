@@ -4568,3 +4568,14 @@ stopped and started again now fires again, and so does a once route after the Ca
 again; before, the start failed with `IllegalStateException: Task already scheduled or cancelled`.
 
 The protected method `OnceConsumer.scheduleTask(TimerTask, Timer)` is replaced by `scheduleTask()`.
+
+=== Jackson 3 - camel-kafka transforms
+
+The classes in `org.apache.camel.component.kafka.transform` that use Jackson (`DropField`, `ExtractField`, `HoistField`,
+`InsertField`, `MaskField`, `MessageTimestampRouter`, `ReplaceField` and `ValueToKey`) are deprecated. They keep working as
+before with `camel-jackson`, so existing Kamelets are not affected.
+
+The package `org.apache.camel.component.kafka.transform.jackson3` has the same classes on Jackson 3. They need `camel-jackson3`
+on the classpath, and a body that is a `tools.jackson.databind.JsonNode`, JSON text or bytes. Do not mix the two lines: a
+`com.fasterxml.jackson.databind.JsonNode` body does not work with the new classes, and `HoistField` writes it as a bean,
+without an error.

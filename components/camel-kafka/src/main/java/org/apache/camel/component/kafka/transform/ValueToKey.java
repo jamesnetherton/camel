@@ -28,6 +28,10 @@ import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.util.ObjectHelper;
 
+/**
+ * @deprecated use {@link org.apache.camel.component.kafka.transform.jackson3.ValueToKey}, which uses Jackson 3.
+ */
+@Deprecated(since = "4.24")
 public class ValueToKey {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

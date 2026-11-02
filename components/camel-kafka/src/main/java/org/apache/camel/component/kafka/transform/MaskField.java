@@ -30,6 +30,10 @@ import org.apache.camel.ExchangeProperty;
 import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.util.ObjectHelper;
 
+/**
+ * @deprecated use {@link org.apache.camel.component.kafka.transform.jackson3.MaskField}, which uses Jackson 3.
+ */
+@Deprecated(since = "4.24")
 public class MaskField {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

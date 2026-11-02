@@ -25,6 +25,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.ExchangeProperty;
 import org.apache.camel.InvalidPayloadException;
 
+/**
+ * @deprecated use {@link org.apache.camel.component.kafka.transform.jackson3.HoistField}, which uses Jackson 3.
+ */
+@Deprecated(since = "4.24")
 public class HoistField {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

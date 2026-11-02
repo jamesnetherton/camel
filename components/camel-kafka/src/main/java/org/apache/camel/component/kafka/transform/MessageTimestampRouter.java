@@ -31,6 +31,11 @@ import org.apache.camel.ExchangeProperty;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.util.ObjectHelper;
 
+/**
+ * @deprecated use {@link org.apache.camel.component.kafka.transform.jackson3.MessageTimestampRouter}, which uses
+ *             Jackson 3.
+ */
+@Deprecated(since = "4.24")
 public class MessageTimestampRouter {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
