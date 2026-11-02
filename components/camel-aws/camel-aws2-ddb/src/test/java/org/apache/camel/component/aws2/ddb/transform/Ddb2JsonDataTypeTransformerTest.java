@@ -28,7 +28,7 @@ import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.aws2.ddb.Ddb2Constants;
 import org.apache.camel.component.aws2.ddb.Ddb2Operations;
-import org.apache.camel.component.jackson.transform.Json;
+import org.apache.camel.component.jackson3.transform.Json;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.BodyType.Carrier;
 import org.apache.camel.spi.BodyTypes;

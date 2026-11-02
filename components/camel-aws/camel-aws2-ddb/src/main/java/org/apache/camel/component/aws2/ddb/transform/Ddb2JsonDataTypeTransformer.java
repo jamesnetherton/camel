@@ -24,15 +24,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Message;
 import org.apache.camel.component.aws2.ddb.Ddb2Constants;
 import org.apache.camel.component.aws2.ddb.Ddb2Operations;
-import org.apache.camel.component.jackson.JacksonDataFormat;
-import org.apache.camel.component.jackson.transform.Json;
+import org.apache.camel.component.jackson3.JacksonDataFormat;
+import org.apache.camel.component.jackson3.transform.Json;
 import org.apache.camel.spi.BodyType;
 import org.apache.camel.spi.BodyType.Carrier;
 import org.apache.camel.spi.BodyTypes;
@@ -44,6 +41,9 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate;
 import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Maps Json body to DynamoDB attribute value map and sets the attribute map as Camel DynamoDB header entries.
@@ -122,7 +122,7 @@ public class Ddb2JsonDataTypeTransformer extends Transformer {
 
         JsonNode bodyOperation = jsonBody.get("operation");
         if (bodyOperation != null) {
-            checkBodyOperation(bodyOperation.asText(), operation);
+            checkBodyOperation(bodyOperation.asString(), operation);
             // the operation field is no attribute of the item or key
             jsonBody = jsonBody.deepCopy();
             ((ObjectNode) jsonBody).remove("operation");

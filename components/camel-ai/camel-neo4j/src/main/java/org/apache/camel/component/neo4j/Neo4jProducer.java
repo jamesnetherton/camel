@@ -23,8 +23,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.Message;
@@ -38,6 +36,9 @@ import org.neo4j.driver.QueryConfig;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Values;
 import org.neo4j.driver.summary.ResultSummary;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.apache.camel.component.neo4j.Neo4Operation.RETRIEVE_NODES;
 import static org.apache.camel.component.neo4j.Neo4Operation.RETRIEVE_NODES_AND_UPDATE_WITH_CYPHER_QUERY;
@@ -54,7 +55,7 @@ import static org.apache.camel.component.neo4j.Neo4jHeaders.QUERY_RETRIEVE_SIZE;
 
 public class Neo4jProducer extends DefaultProducer {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builderWithJackson2Defaults().build();
     private static final TypeReference<Map<String, Object>> MAP_TYPE_REF = new TypeReference<>() {
     };
 

@@ -17,7 +17,6 @@
 
 package org.apache.camel.component.google.sheets.transform;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,14 +25,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.Message;
 import org.apache.camel.component.google.sheets.internal.GoogleSheetsConstants;
 import org.apache.camel.component.google.sheets.stream.GoogleSheetsStreamConstants;
-import org.apache.camel.component.jackson.transform.Json;
+import org.apache.camel.component.jackson3.transform.Json;
 import org.apache.camel.spi.BodyType;
 import org.apache.camel.spi.BodyType.Carrier;
 import org.apache.camel.spi.BodyTypes;
@@ -42,6 +40,7 @@ import org.apache.camel.spi.DataTypeTransformer;
 import org.apache.camel.spi.Transformer;
 import org.apache.camel.support.MessageHelper;
 import org.apache.camel.util.ObjectHelper;
+import tools.jackson.core.JacksonException;
 
 /**
  * Data type supports generic JsonNode representation of Google Sheets row and column values. Transforms generic
@@ -138,7 +137,7 @@ public class GoogleSheetsJsonStructDataTypeTransformer extends Transformer {
             message.setHeader(GoogleSheetsConstants.PROPERTY_PREFIX + "values", valueRange);
 
             return valueRange;
-        } catch (InvalidPayloadException | JsonProcessingException e) {
+        } catch (InvalidPayloadException | JacksonException e) {
             throw new CamelExecutionException(
                     "Failed to apply Google Sheets Json struct data type on exchange",
                     message.getExchange(), e);
@@ -191,7 +190,7 @@ public class GoogleSheetsJsonStructDataTypeTransformer extends Transformer {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new CamelExecutionException(
                     "Failed to apply Google Sheets Json struct data type on exchange",
                     message.getExchange(), e);
@@ -239,7 +238,7 @@ public class GoogleSheetsJsonStructDataTypeTransformer extends Transformer {
             }
 
             return Json.mapper().writer().writeValueAsString(model);
-        } catch (InvalidPayloadException | JsonProcessingException e) {
+        } catch (InvalidPayloadException | JacksonException e) {
             throw new CamelExecutionException(
                     "Failed to apply Google Sheets Json struct data type on exchange",
                     message.getExchange(), e);
@@ -258,9 +257,9 @@ public class GoogleSheetsJsonStructDataTypeTransformer extends Transformer {
         String jsonBody = MessageHelper.extractBodyAsString(message);
         if (jsonBody != null) {
             try {
-                ValueRange valueRange = Json.mapper().reader().readValue(jsonBody, ValueRange.class);
+                ValueRange valueRange = Json.mapper().readerFor(ValueRange.class).readValue(jsonBody);
                 return valueRange.getValues() != null ? Optional.of(valueRange) : Optional.empty();
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 return Optional.empty();
             }
         }
@@ -272,7 +271,7 @@ public class GoogleSheetsJsonStructDataTypeTransformer extends Transformer {
      * Converts message body to list of Json objects. Supports different message body types such as List, String,
      * InputStream.
      */
-    private static List<String> bodyAsJsonBeans(Message message) throws JsonProcessingException, InvalidPayloadException {
+    private static List<String> bodyAsJsonBeans(Message message) throws InvalidPayloadException {
         if (message.getBody() == null) {
             return Collections.emptyList();
         }
