@@ -4783,3 +4783,13 @@ Jackson 2 is no longer used.
 
 The limits on what is parsed are those of Jackson 3: nesting up to 500 levels (it was 1000) and strings up to 100 million
 characters (it was 20 million). To change them, register a mapper with your own `StreamReadConstraints`.
+=== Jackson 3 - camel-kafka transforms
+
+The classes in `org.apache.camel.component.kafka.transform` that use Jackson (`DropField`, `ExtractField`, `HoistField`,
+`InsertField`, `MaskField`, `MessageTimestampRouter`, `ReplaceField` and `ValueToKey`) are deprecated. They keep working as
+before with `camel-jackson`, so existing Kamelets are not affected.
+
+The package `org.apache.camel.component.kafka.transform.jackson3` has the same classes on Jackson 3. They need `camel-jackson3`
+on the classpath, and a body that is a `tools.jackson.databind.JsonNode`, JSON text or bytes. Do not mix the two lines: a
+`com.fasterxml.jackson.databind.JsonNode` body does not work with the new classes, and `HoistField` writes it as a bean,
+without an error.

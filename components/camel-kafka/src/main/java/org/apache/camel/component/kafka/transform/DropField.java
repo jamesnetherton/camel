@@ -23,6 +23,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.Processor;
 
+/**
+ * @deprecated use {@link org.apache.camel.component.kafka.transform.jackson3.DropField}, which uses Jackson 3.
+ */
+@Deprecated(since = "4.24")
 public class DropField implements Processor {
 
     String field;
