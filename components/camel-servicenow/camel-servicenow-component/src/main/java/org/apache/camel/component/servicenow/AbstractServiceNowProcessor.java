@@ -26,13 +26,13 @@ import java.util.Map.Entry;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.util.ObjectHelper;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 public abstract class AbstractServiceNowProcessor implements Processor {
 
@@ -128,7 +128,7 @@ public abstract class AbstractServiceNowProcessor implements Processor {
                                 responseAttributes = new HashMap<>();
                             }
 
-                            responseAttributes.put(key, node.textValue());
+                            responseAttributes.put(key, node.stringValue(null));
                         }
                     }
 
@@ -173,7 +173,7 @@ public abstract class AbstractServiceNowProcessor implements Processor {
                 // expected element type
                 result = mapper.treeToValue(node, List.class);
             } else {
-                result = mapper.readValue(node.traverse(), javaTypeCache.get(model));
+                result = mapper.treeToValue(node, javaTypeCache.get(model));
             }
         } else {
             result = mapper.treeToValue(node, model);
