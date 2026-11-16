@@ -512,7 +512,7 @@
         <tahu-version>1.0.21</tahu-version>
         <tamboui-version>0.4.0</tamboui-version>
         <testcontainers-version>2.0.5</testcontainers-version>
-        <threetenbp-version>1.7.2</threetenbp-version>
+        <threetenbp-version>1.7.5.redhat-00001</threetenbp-version>
         <thymeleaf-version>3.1.5.RELEASE</thymeleaf-version>
         <tika-version>3.3.2</tika-version>
         <twilio-version>12.1.1</twilio-version>
