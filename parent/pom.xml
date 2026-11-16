@@ -109,7 +109,7 @@
         <com-ibm-mq-jakarta-client-version>10.0.0.0</com-ibm-mq-jakarta-client-version>
         <cometd-java-client-version>9.0.1</cometd-java-client-version>
         <cometd-java-server-version>9.0.1</cometd-java-server-version>
-        <commons-beanutils-version>1.11.0</commons-beanutils-version>
+        <commons-beanutils-version>1.11.0.redhat-00003</commons-beanutils-version>
         <commons-codec-version>1.22.1</commons-codec-version>
         <commons-collections-version>3.2.2</commons-collections-version>
         <commons-collections4-version>4.5.0</commons-collections4-version>
@@ -275,7 +275,7 @@
         <jakarta-annotation-api-version>3.0.0</jakarta-annotation-api-version>
         <jakarta-servlet-api-version>6.1.0</jakarta-servlet-api-version>
         <jakarta-enterprise-cdi-api-version>4.1.0</jakarta-enterprise-cdi-api-version>
-        <jakarta-inject-version>2.0.1</jakarta-inject-version>
+        <jakarta-inject-version>2.0.1.redhat-00007</jakarta-inject-version>
         <jakarta-xml-bind-api-version>4.0.5</jakarta-xml-bind-api-version>
         <jakarta-xml-soap-api-version>3.0.2</jakarta-xml-soap-api-version>
         <jakarta-xml-ws-api-version>4.0.3</jakarta-xml-ws-api-version>
@@ -285,7 +285,7 @@
         <jaxp-ri-version>1.4.5</jaxp-ri-version>
         <jboss-logging-version>3.6.3.Final</jboss-logging-version>
         <jboss-transaction-spi-version>7.6.1.Final</jboss-transaction-spi-version>
-        <jboss-xnio-version>3.8.17.Final</jboss-xnio-version>
+        <jboss-xnio-version>3.8.17.Final-redhat-00001</jboss-xnio-version>
         <jcache-version>1.1.1</jcache-version>
         <jcip-annotations-version>1.0-1</jcip-annotations-version>
         <jcr-version>2.0</jcr-version>
